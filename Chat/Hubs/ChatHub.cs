@@ -33,6 +33,24 @@ namespace Chat.Hubs
             }
 
         }
+        public void SendPublic(string name, string message)
+        {
+            // Call the addNewMessageToPage method to update clients
+            Clients.All.broadcastMessage(name, message);
+        }
+
+        public void IsTyping(string name)
+        {
+            SayWhoIsTyping(name);
+        }
+
+        public void SayWhoIsTyping(string name)
+        {
+            IHubContext context = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
+            context.Clients.All.sayWhoIsTyping(name);
+        }
+
+
         public override Task OnConnected()
         {
             if (Users == null)
@@ -48,7 +66,7 @@ namespace Chat.Hubs
 
         public void Send(string message)
         {
-            Clients.All.message(Context.User.Identity.GetUserName() + message);
+            Clients.All.message(Context.User.Identity.GetUserName() +" " + message);
 
         }
 
@@ -72,10 +90,20 @@ namespace Chat.Hubs
             }
         }
 
+
+        public void UserTyping(string connectionId, string msg)
+        {
+            if (connectionId != null)
+            {
+                var id = Context.ConnectionId;
+                Clients.Client(connectionId).isTyping(id, msg);
+            }
+        }
+
         public void SendRequest(string toId)
         {
             var user = _unitOfWork.UsersRepo.GetAll().ToList()
-                .Find(c => c.Email == Users.Find(a => a.ConnectionId == toId).UserName).Id;
+                .Find(c => c.Email == Users.Find(a => a.ConnectionId == toId).UserName ).Id;
             FriendRequest req = new FriendRequest
             {
                 FromId = Context.User.Identity.GetUserId(),

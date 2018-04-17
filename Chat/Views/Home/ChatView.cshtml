@@ -14,6 +14,8 @@
             <input class="form-control" id="txt" />
             <button id="send" class="btn btn-success">Send</button>
             <button id="sendPrivate" class="btn btn-success">SendPrivate</button>
+            
+
         </div>
     </div>
 </div>
@@ -25,8 +27,17 @@
 
 
 </div>
+
+<div>
+    <input type="hidden" id="displayname" />
+    <ul id="isTyping"> </ul>
+    <ul id="discussion"></ul>
+</div>
+
 @section scripts
 {
+
+
     <script src="~/Scripts/jquery.signalR-2.2.0.js"></script>
     <script src="~/signalr/hubs"></script>
 
@@ -51,10 +62,12 @@
             hub.client.sendRequest = function(conId, reqId) {
                 console.log('asdasdas');
                 $('#messages').append(`<li>
-                        <h3>Friend Request from:</h3>
-                        <button id="accept" onclick="accept('${conId}', '${reqId}')" class="btn btn-success">accept</button>
-                        <button id="decline" onclick="deny('${conId}', '${reqId}')" class="btn btn-success">decline</button>
-                        </li>`);
+                            <h3>Friend Request from:</h3>
+                            <button id="accept" onclick="accept('${conId}', '${reqId
+                    }')" class="btn btn-success">accept</button>
+                            <button id="decline" onclick="deny('${conId}', '${reqId
+                    }')" class="btn btn-success">decline</button>
+                            </li>`);
             }
 
             hub.client.showUsers = function(list) {
@@ -65,7 +78,7 @@
                     function(i, el) {
                         users += `<li onclick="pChat('${el.ConnectionId}')"><b>${el.ConnectionId} ${el.UserName
                             }</b>:
-        </li><button id="sendRq" onclick="sendReq('${el.ConnectionId}')" class="btn btn-success">SendReq</button>`;
+            </li><button id="sendRq" onclick="sendReq('${el.ConnectionId}')" class="btn btn-success">SendReq</button>`;
                     });
                 $('#usersList').html(users);
             }
@@ -76,6 +89,37 @@
                 $('#user').append("<li>" + msg + "</li");
             }
             $.connection.hub.start().done(function() {
+
+
+
+
+
+                hub.client.sayWhoIsTyping = function (name) {
+                    $('#isTyping').html('<em>' + name + ' is typing...</em>');
+                    setTimeout(function () {
+                        $('#isTyping').html('&nbsp;');
+                    }, 5000);
+                };
+                
+
+                $('#message').keypress(function (e) {
+                    if (e.which == 13) {
+                        var encodedName = $('<div />').text($('#displayname').val()).html();
+                        var encodedMsg = $('<div />').text($('#txt').val()).html();
+                        hub.server.sendPublic(encodedName, encodedMsg);
+                        $('#txt').val('').focus();
+                    } else {
+                        var encodedName = $('<div />').text($('#displayname').val()).html();
+                        hub.server.isTyping(encodedName);
+                    }
+                });
+
+
+                
+
+
+
+
 
                 $('#send').click(function() {
                     hub.server.send($('#txt').val());
@@ -89,6 +133,7 @@
 
         });
 
+       
         function pChat(conId) {
             hub.server.showPrivateChat(conId);
             $('#messages').html();
@@ -115,6 +160,15 @@
             var encodedValue = $('<div />').text(value).html();
             return encodedValue;
         }
+
+        function showTypingStarted(member) {
+            $typingPlaceholder.text(member.identity + ' is typing...');
+        }
+
+        function hideTypingStarted(member) {
+            $typingPlaceholder.text('');
+        }
+
     </script>
 }
 
