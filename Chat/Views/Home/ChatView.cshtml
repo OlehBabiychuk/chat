@@ -1,0 +1,120 @@
+﻿@{
+    ViewBag.Title = "Chat";
+}
+
+<h2>ChatView</h2>
+<div class="row">
+    <div class="col-md-4">
+        <h3>Users</h3>
+        <ul id="usersList"></ul>
+    </div>
+    <div class="row top-space">
+        <div class="col-lg-4">
+            <ul id="messages"></ul>
+            <input class="form-control" id="txt" />
+            <button id="send" class="btn btn-success">Send</button>
+            <button id="sendPrivate" class="btn btn-success">SendPrivate</button>
+        </div>
+    </div>
+</div>
+<div id="pChat">
+    <input type="hidden" id="toId" />
+
+</div>
+<div>
+
+
+</div>
+@section scripts
+{
+    <script src="~/Scripts/jquery.signalR-2.2.0.js"></script>
+    <script src="~/signalr/hubs"></script>
+
+    <script>
+        var hub = $.connection.chatHub;
+        $(document).ready(function() {
+
+
+            hub.client.message = function(msg) {
+                $('#messages').append("<li>" + msg + "</li");
+            }
+            hub.client.onMessage = function(msg, msg2) {
+                $('#messages').append("<li>" + msg + msg2 + "</li");
+            }
+
+            hub.client.sendPrivate = function(msg) {
+                $('#messages').append("<li>" + msg + "</li");
+            }
+            hub.client.chatInfo = function(msg) {
+                $('#messages').append("<li>" + msg + "</li");
+            }
+            hub.client.sendRequest = function(conId, reqId) {
+                console.log('asdasdas');
+                $('#messages').append(`<li>
+                        <h3>Friend Request from:</h3>
+                        <button id="accept" onclick="accept('${conId}', '${reqId}')" class="btn btn-success">accept</button>
+                        <button id="decline" onclick="deny('${conId}', '${reqId}')" class="btn btn-success">decline</button>
+                        </li>`);
+            }
+
+            hub.client.showUsers = function(list) {
+                console.log(list);
+                if (typeof list !== 'object') return false;
+                var users = "";
+                $.each(list,
+                    function(i, el) {
+                        users += `<li onclick="pChat('${el.ConnectionId}')"><b>${el.ConnectionId} ${el.UserName
+                            }</b>:
+        </li><button id="sendRq" onclick="sendReq('${el.ConnectionId}')" class="btn btn-success">SendReq</button>`;
+                    });
+                $('#usersList').html(users);
+            }
+            hub.client.openChat = function(id) {
+                $('#toId').val(id);
+            }
+            hub.client.user = function(msg) {
+                $('#user').append("<li>" + msg + "</li");
+            }
+            $.connection.hub.start().done(function() {
+
+                $('#send').click(function() {
+                    hub.server.send($('#txt').val());
+                    $('#txt').val(' ');
+                });
+                $('#sendPrivate').click(function() {
+                    hub.server.sendPrivate($('#toId').val(), $('#txt').val());
+                    $('#txt').val(' ');
+                });
+            });
+
+        });
+
+        function pChat(conId) {
+            hub.server.showPrivateChat(conId);
+            $('#messages').html();
+            hub.server.chatAllert(conId);
+        }
+
+        function sendReq(conId) {
+            console.log(conId);
+            hub.server.sendRequest(conId);
+        }
+
+        function accept(conId, reqId) {
+            $('#messages li').click(function() {
+                ($(this)).remove();
+            });
+            hub.server.answer(conId, reqId, "yes");
+        }
+
+        function deny(conId, reqId) {
+            hub.server.answer(conId, reqId, "no");
+        }
+
+        function htmlEncode(value) {
+            var encodedValue = $('<div />').text(value).html();
+            return encodedValue;
+        }
+    </script>
+}
+
