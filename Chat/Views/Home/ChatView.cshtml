@@ -74,6 +74,7 @@
                             }</b>:
             </li><button id="sendRq" onclick="sendReq('${el.ConnectionId}')" class="btn btn-success">SendReq</button>`;
                     });
+
                 $('#usersList').html(users);
             }
             hub.client.openChat = function(id) {
@@ -95,10 +96,7 @@
                 $('#send').click(function() {
                     hub.server.send($('#txt').val());
                     $('#txt').val(' ');
-
-
                 });
-
 
                 $('#sendPrivate').click(function() {
                     hub.server.sendPrivate($('#toId').val(), $('#txt').val());
@@ -126,6 +124,9 @@
         }
 
         function deny(conId, reqId) {
+            $('#messages li').click(function() {
+                ($(this)).remove();
+            });
             hub.server.answer(conId, reqId, "no");
         }
 
