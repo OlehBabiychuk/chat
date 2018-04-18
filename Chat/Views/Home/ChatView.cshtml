@@ -12,39 +12,33 @@
         <div class="col-lg-4">
             <ul id="messages"></ul>
             <input class="form-control" id="txt" />
+           
             <button id="send" class="btn btn-success">Send</button>
-            <button id="sendPrivate" class="btn btn-success">SendPrivate</button>
             
+            <button id="sendPrivate" class="btn btn-success">SendPrivate</button>
+
+            <input type="hidden" id="displayname" />
+            <ul id="discussion"></ul>
+            <div id="Status"></div>
 
         </div>
     </div>
 </div>
 <div id="pChat">
     <input type="hidden" id="toId" />
-
 </div>
 <div>
-
-
 </div>
-
-<div>
-    <input type="hidden" id="displayname" />
-    <ul id="isTyping"> </ul>
-    <ul id="discussion"></ul>
-</div>
-
 @section scripts
 {
-
-
     <script src="~/Scripts/jquery.signalR-2.2.0.js"></script>
     <script src="~/signalr/hubs"></script>
 
     <script>
+        $('#txt').focus();
+
         var hub = $.connection.chatHub;
         $(document).ready(function() {
-
 
             hub.client.message = function(msg) {
                 $('#messages').append("<li>" + msg + "</li");
@@ -90,50 +84,29 @@
             }
             $.connection.hub.start().done(function() {
 
-
-
-
-
-                hub.client.sayWhoIsTyping = function (name) {
-                    $('#isTyping').html('<em>' + name + ' is typing...</em>');
-                    setTimeout(function () {
-                        $('#isTyping').html('&nbsp;');
-                    }, 5000);
-                };
-                
-
-                $('#message').keypress(function (e) {
+                $('#txt').focus();
+                $('#txt').keypress(function(e) {
                     if (e.which == 13) {
-                        var encodedName = $('<div />').text($('#displayname').val()).html();
-                        var encodedMsg = $('<div />').text($('#txt').val()).html();
-                        hub.server.sendPublic(encodedName, encodedMsg);
-                        $('#txt').val('').focus();
-                    } else {
-                        var encodedName = $('<div />').text($('#displayname').val()).html();
-                        hub.server.isTyping(encodedName);
+                        $('#send').trigger('click');
+
                     }
                 });
-
-
-                
-
-
-
-
 
                 $('#send').click(function() {
                     hub.server.send($('#txt').val());
                     $('#txt').val(' ');
+
+
                 });
+
+
                 $('#sendPrivate').click(function() {
                     hub.server.sendPrivate($('#toId').val(), $('#txt').val());
                     $('#txt').val(' ');
                 });
             });
-
         });
 
-       
         function pChat(conId) {
             hub.server.showPrivateChat(conId);
             $('#messages').html();
@@ -165,10 +138,13 @@
             $typingPlaceholder.text(member.identity + ' is typing...');
         }
 
+
         function hideTypingStarted(member) {
             $typingPlaceholder.text('');
         }
 
     </script>
-}
 
+
+
+}

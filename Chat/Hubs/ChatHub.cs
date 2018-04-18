@@ -39,16 +39,11 @@ namespace Chat.Hubs
             Clients.All.broadcastMessage(name, message);
         }
 
-        public void IsTyping(string name)
-        {
-            SayWhoIsTyping(name);
-        }
 
-        public void SayWhoIsTyping(string name)
-        {
-            IHubContext context = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
-            context.Clients.All.sayWhoIsTyping(name);
-        }
+
+       
+
+
 
 
         public override Task OnConnected()
@@ -126,11 +121,14 @@ namespace Chat.Hubs
             if (answer == "yes")
             {
                 var list = _unitOfWork.UsersRepo.GetAll().ToList()
-                    .Find(c => c.Email == Users.Find(a => a.ConnectionId == id).UserName).UserFriends.ToList();
+                    .Find(c => c.Email == Users.Find(a => a.ConnectionId != id).UserName).UserFriends.ToList();
                 Friend user = new Friend
                 {
+                   
                     UserId = Context.User.Identity.GetUserId(),
-                    FriendId = _unitOfWork.UsersRepo.GetAll().ToList().Find(c => c.Email == Users.Find(a => a.ConnectionId == id).UserName).Id
+                    
+                    FriendId = _unitOfWork.UsersRepo.GetAll().ToList().Find(c => c.UserName == Users.Find(a => a.ConnectionId == id).UserName).Id
+                   // FriendId = _unitOfWork.UsersRepo.GetAll().ToList().Where((c=>c.FriendRequests ==Users. ))
                 };
                 list.Add(user);
                 var delreq = _unitOfWork.RequestsRepo.GetById(reqId);

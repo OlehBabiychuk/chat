@@ -210,6 +210,15 @@
     <Compile Include="Interfaces\IChatRepository.cs" />
     <Compile Include="IoC\NinjectRegistration.cs" />
     <Compile Include="IoC\NinjectSignalRDependencyResolver.cs" />
+    <Compile Include="Migrations\201804181030481_InitialCreate.cs" />
+    <Compile Include="Migrations\201804181030481_InitialCreate.Designer.cs">
+      <DependentUpon>201804181030481_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201804181536229_init.cs" />
+    <Compile Include="Migrations\201804181536229_init.Designer.cs">
+      <DependentUpon>201804181536229_init.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModel.cs" />
     <Compile Include="Models\Friend.cs" />
     <Compile Include="Models\FriendRequest.cs" />
@@ -1076,6 +1085,14 @@
   <ItemGroup>
     <None Include="packages.config" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201804181030481_InitialCreate.resx">
+      <DependentUpon>201804181030481_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201804181536229_init.resx">
+      <DependentUpon>201804181536229_init.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
