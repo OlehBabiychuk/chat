@@ -10,6 +10,7 @@ using Microsoft.AspNet.SignalR;
 
 namespace Chat.Hubs
 {
+    [Authorize]
     public class ChatHub : Hub
     {
         
@@ -38,13 +39,6 @@ namespace Chat.Hubs
             // Call the addNewMessageToPage method to update clients
             Clients.All.broadcastMessage(name, message);
         }
-
-
-
-       
-
-
-
 
         public override Task OnConnected()
         {
@@ -121,26 +115,24 @@ namespace Chat.Hubs
             if (answer == "yes")
             {
                 var list = _unitOfWork.UsersRepo.GetAll().ToList()
-                    .Find(c => c.Email == Users.Find(a => a.ConnectionId != id).UserName).UserFriends.ToList();
+                    .Find(c => c.Email == Users.Find(a => a.ConnectionId == id).UserName).UserFriends.ToList();
                 Friend user = new Friend
-                {
-                   
-                    UserId = Context.User.Identity.GetUserId(),
-                    
-                    FriendId = _unitOfWork.UsersRepo.GetAll().ToList().Find(c => c.UserName == Users.Find(a => a.ConnectionId == id).UserName).Id
-                   // FriendId = _unitOfWork.UsersRepo.GetAll().ToList().Where((c=>c.FriendRequests ==Users. ))
+                {                  
+                    UserId = Context.User.Identity.GetUserId(),                  
+                   FriendId = _unitOfWork.UsersRepo.GetAll().ToList().Find(c => c.UserName == Users.Find(a => a.ConnectionId == id).UserName).Id
+                   // FriendId = _unitOfWork.UsersRepo.GetAll().ToList().Find(c=> c.Email == Users.Find(a=> a.ConnectionId == id).UserName).Id
                 };
                 list.Add(user);
                 var delreq = _unitOfWork.RequestsRepo.GetById(reqId);
                 _unitOfWork.RequestsRepo.Delete(delreq);
                 _unitOfWork.Save();
             }
-
             else
             {
-                var delreqq = _unitOfWork.RequestsRepo.GetById(reqId);
-                _unitOfWork.RequestsRepo.Delete(delreqq);
+                var delreq = _unitOfWork.RequestsRepo.GetById(reqId);
+                _unitOfWork.RequestsRepo.Delete(delreq);
                 _unitOfWork.Save();
+
             }
         }
 
