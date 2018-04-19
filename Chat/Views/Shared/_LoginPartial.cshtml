@@ -7,7 +7,10 @@
 
         <ul class="nav navbar-nav navbar-right">
             <li>
-                @Html.ActionLink("Здравствуйте, " + User.Identity.GetUserName() + "!", "Index", "Manage", routeValues: null, htmlAttributes: new { title = "Manage" })
+                @Html.ActionLink("Здравствуйте, " + User.Identity.GetUserName() + "!", "Index", "Home", routeValues: null, htmlAttributes: new { title = "Manage" })
+            </li>
+            <li>
+                @Html.ActionLink("Change Password", "ChangePassword", "Manage")
             </li>
             <li>
                 @Html.ActionLink("Chat","Chat","Home")
