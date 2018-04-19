@@ -134,6 +134,13 @@ namespace Chat.Hubs
                 _unitOfWork.Save();
 
             }
+
+            else
+            {
+                var delreqq = _unitOfWork.RequestsRepo.GetById(reqId);
+                _unitOfWork.RequestsRepo.Delete(delreqq);
+                _unitOfWork.Save();
+            }
         }
 
         public void ChatAllert(string userId)
