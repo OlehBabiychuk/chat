@@ -19,6 +19,7 @@
 
             <input type="hidden" id="displayname" />
             <ul id="discussion"></ul>
+            <ul> id="checked"</ul>
             <div id="Status"></div>
 
         </div>
@@ -35,8 +36,6 @@
     <script src="~/signalr/hubs"></script>
 
     <script>
-      //  $('#txt').focus();
-
         var hub = $.connection.chatHub;
         $(document).ready(function() {
 
@@ -50,6 +49,11 @@
             hub.client.sendPrivate = function(msg) {
                 $('#messages').append("<li>" + msg + "</li");
             }
+            hub.client.userTyping = function (conId, msg) {
+                $('#messages').append("<li>" + conId + msg + "</li");
+
+
+            }
             hub.client.chatInfo = function(msg) {
                 $('#messages').append("<li>" + msg + "</li");
             }
@@ -60,7 +64,7 @@
                             <button id="accept" onclick="accept('${conId}', '${reqId
                     }')" class="btn btn-success">accept</button>
                             <button id="decline" onclick="deny('${conId}', '${reqId
-                    }')" class="btn btn-success">decline</button>
+                    }')" class="btn btn-decline">decline</button>
                             </li>`);
             }
 
@@ -70,8 +74,7 @@
                 var users = "";
                 $.each(list,
                     function(i, el) {
-                        users += `<li onclick="pChat('${el.ConnectionId}')"><b>${el.ConnectionId} ${el.UserName
-                            }</b>:
+                        users += `<li onclick="pChat('${el.ConnectionId}')"><b>${el.UserName}</b>:
             </li><button id="sendRq" onclick="sendReq('${el.ConnectionId}')" class="btn btn-success">SendReq</button>`;
                     });
 
@@ -102,6 +105,11 @@
                     hub.server.sendPrivate($('#toId').val(), $('#txt').val());
                     $('#txt').val(' ');
                 });
+
+
+
+
+              
             });
         });
 
@@ -116,6 +124,9 @@
             hub.server.sendRequest(conId);
         }
 
+        function userTyping(conId, msg) {
+            hub.server.userTyping(conId, msg);
+        }
         function accept(conId, reqId) {
             $('#messages li').click(function() {
                 ($(this)).remove();

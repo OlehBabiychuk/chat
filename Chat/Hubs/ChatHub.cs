@@ -68,7 +68,9 @@ namespace Chat.Hubs
 
         public void ShowPrivateChat(string userConnectionId)
         {
-            Clients.Caller.openChat(userConnectionId);
+           Clients.Caller.openChat(userConnectionId);
+        
+           
         }
         public void SendPrivate(string userConnectionId, string message)
         {
@@ -78,7 +80,6 @@ namespace Chat.Hubs
                 Clients.Client(userConnectionId).sendPrivate(message);
             }
         }
-
 
         public void UserTyping(string connectionId, string msg)
         {
@@ -116,11 +117,13 @@ namespace Chat.Hubs
             {
                 var list = _unitOfWork.UsersRepo.GetAll().ToList()
                     .Find(c => c.Email == Users.Find(a => a.ConnectionId == id).UserName).UserFriends.ToList();
+
+                var friend = _unitOfWork.UsersRepo.GetAll().ToList()
+                    .Find(c => c.Email == Users.Find(a => a.ConnectionId == id).UserName).Id;
                 Friend user = new Friend
                 {                  
-                    UserId = Context.User.Identity.GetUserId(),                  
-                   FriendId = _unitOfWork.UsersRepo.GetAll().ToList().Find(c => c.UserName == Users.Find(a => a.ConnectionId == id).UserName).Id
-                   // FriendId = _unitOfWork.UsersRepo.GetAll().ToList().Find(c=> c.Email == Users.Find(a=> a.ConnectionId == id).UserName).Id
+                    UserId = Context.User.Identity.GetUserId(),                                 
+                    FriendId =friend 
                 };
                 list.Add(user);
                 var delreq = _unitOfWork.RequestsRepo.GetById(reqId);
@@ -133,14 +136,7 @@ namespace Chat.Hubs
                 _unitOfWork.RequestsRepo.Delete(delreq);
                 _unitOfWork.Save();
 
-            }
-
-            else
-            {
-                var delreqq = _unitOfWork.RequestsRepo.GetById(reqId);
-                _unitOfWork.RequestsRepo.Delete(delreqq);
-                _unitOfWork.Save();
-            }
+            }       
         }
 
         public void ChatAllert(string userId)
